@@ -1,4 +1,6 @@
-from PyQt5.QtWidgets import QInputDialog, QMessageBox, QFileDialog
+from PyQt5.QtWidgets import (
+    QDialog, QFormLayout, QLineEdit, QDialogButtonBox, QMessageBox, QFileDialog
+)
 import requests
 import urllib3
 import os
@@ -12,20 +14,54 @@ def mostrar_mensaje(titulo, texto, icono=QMessageBox.Information):
     msg.setText(texto)
     msg.exec_()
 
-def pedir_texto(titulo, etiqueta, default=""):
-    valor, ok = QInputDialog.getText(None, titulo, etiqueta, text=default)
-    if not ok or valor.strip() == "":
-        raise Exception(f"⚠️ Entrada cancelada o vacía: {etiqueta}")
-    return valor.strip()
+class EntradaDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Parámetros del Script")
+
+        layout = QFormLayout(self)
+
+        # Campos de entrada
+        self.esquema_mavvial = QLineEdit()
+        self.esquema_manzana = QLineEdit()
+        self.esquema_placa = QLineEdit()
+        self.capa_mavvial = QLineEdit()
+        self.capa_placa = QLineEdit()
+        self.capa_manzana = QLineEdit()
+
+        layout.addRow("🔹 Esquema MAVVIAL:", self.esquema_mavvial)
+        layout.addRow("🔹 Esquema MANZANA:", self.esquema_manzana)
+        layout.addRow("🔹 Esquema PLACA:", self.esquema_placa)
+        layout.addRow("🔹 Capa MAVVIAL:", self.capa_mavvial)
+        layout.addRow("🔹 Capa PLACA:", self.capa_placa)
+        layout.addRow("🔹 Capa MANZANA:", self.capa_manzana)
+
+        # Botones Aceptar / Cancelar
+        botones = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        botones.accepted.connect(self.accept)
+        botones.rejected.connect(self.reject)
+        layout.addRow(botones)
+
+    def get_values(self):
+        return (
+            self.esquema_mavvial.text().strip(),
+            self.esquema_manzana.text().strip(),
+            self.esquema_placa.text().strip(),
+            self.capa_mavvial.text().strip(),
+            self.capa_placa.text().strip(),
+            self.capa_manzana.text().strip()
+        )
 
 try:
     # ========= ENTRADA DE DATOS =========
-    esquema_mavvial = pedir_texto("Esquema MAVVIAL", "🔹 Ingrese el nombre del esquema MAVVIAL:")
-    esquema_manzana = pedir_texto("Esquema MANZANA", "🔹 Ingrese el nombre del esquema MANZANA:")
-    esquema_placa = pedir_texto("Esquema PLACA", "🔹 Ingrese el nombre del esquema PLACA:")
-    capa_mavvial = pedir_texto("Capa MAVVIAL", "🔹 Ingrese el nombre de la capa MAVVIAL:")
-    capa_placa = pedir_texto("Capa PLACA", "🔹 Ingrese el nombre de la capa PLACA:")
-    capa_manzana = pedir_texto("Capa MANZANA", "🔹 Ingrese el nombre de la capa MANZANA:")
+    dlg = EntradaDialog()
+    if dlg.exec_() != QDialog.Accepted:
+        raise Exception("⚠️ Entrada cancelada por el usuario.")
+
+    esquema_mavvial, esquema_manzana, esquema_placa, capa_mavvial, capa_placa, capa_manzana = dlg.get_values()
+
+    if not all([esquema_mavvial, esquema_manzana, esquema_placa, capa_mavvial, capa_placa, capa_manzana]):
+        raise Exception("⚠️ Todos los campos son obligatorios.")
 
     # ========= CARGA DEL SCRIPT =========
     mostrar_mensaje("Descargando", "📥 Descargando el script desde GitHub...")
