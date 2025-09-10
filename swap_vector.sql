@@ -37,7 +37,7 @@ JOIN (
     WHERE id_mavvial IS NOT NULL
     GROUP BY id_mavvial
     HAVING COUNT(*) >= 4
-) p ON m.id_capa = p.id_mavvial;
+) p ON m.id_capa::INTEGER = p.id_mavvial::INTEGER;
 
 
 create index idx_geom_mavvial_procesar on mavvial_procesar using gist (geom);
