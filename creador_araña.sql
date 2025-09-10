@@ -11,4 +11,4 @@ JOIN "{esquema_mavvial}"."{capa_mavvial}" f
   ON p."{campo_llave_placa}" = f."{campo_llave_mavvial}";
   
   
-create index idx_geom_araña on "{esquema_placa}"."araña"
+create index idx_geom_araña on "{esquema_placa}"."araña" using gist (geom);
