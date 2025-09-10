@@ -438,16 +438,19 @@ where sum_end>sum_start;
 UPDATE mavvial_procesar
 SET swap = 'si'
 WHERE
-    regexp_replace(placa_1_s, '[^0-9].*$', '')::integer >
-    regexp_replace(placa_1_e, '[^0-9].*$', '')::integer
-	and swap is null;
-	
+    swap IS NULL
+    AND regexp_replace(placa_1_s, '[^0-9].*$', '') ~ '^[0-9]+$'
+    AND regexp_replace(placa_1_e, '[^0-9].*$', '') ~ '^[0-9]+$'
+    AND regexp_replace(placa_1_s, '[^0-9].*$', '')::integer >
+        regexp_replace(placa_1_e, '[^0-9].*$', '')::integer;
+
+    
 UPDATE mavvial_procesar
 SET swap = 'no'
 WHERE
-    regexp_replace(placa_1_s, '[^0-9].*$', '')::integer <
-    regexp_replace(placa_1_e, '[^0-9].*$', '')::integer
-	and swap is null;
+    swap IS NULL
+    AND NULLIF(regexp_replace(placa_1_s, '[^0-9].*$', ''), '')::integer <
+        NULLIF(regexp_replace(placa_1_e, '[^0-9].*$', ''), '')::integer;
 	
 update mavvial_procesar
 set swap = 'revisar'
