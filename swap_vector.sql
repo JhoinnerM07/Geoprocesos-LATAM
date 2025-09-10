@@ -26,6 +26,8 @@ end $$;
 
 BEGIN;
 
+ALTER TABLE "{esquema_mavvial}"."{capa_mavvial}" ADD COLUMN IF NOT EXISTS id serial;
+
 DROP TABLE IF EXISTS mavvial_procesar;
 
 CREATE TABLE mavvial_procesar AS
